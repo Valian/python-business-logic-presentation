@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "node build/dev-server.js",
     "build": "node build/build.js",
-    "deploy": "npm run build; push-dir --dir=dist --branch=gh-pages --cleanup",
+    "deploy": "npm run build && push-dir --dir=dist --branch=gh-pages --cleanup --verbose",
     "lint": "eslint --ext .js,.vue src"
   },
   "dependencies": {
