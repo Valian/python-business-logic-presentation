@@ -6,11 +6,12 @@
       .u-text-centered
         img(src="./assets/django-logo.png")
       h2 Jakub Skałecki @jskalc
+      h4.u-text-centered PyWaw, 17.09.2018
 
     slide(enter="fadeIn", leave="fadeOut")
       h2 About me
       ul
-        li Currently Technical Team leader at VideoBeat
+        li Currently Technical Team Leader at VideoBeat
         li CTO at <a href='https://pvpc.eu'>PvP Center</a>
         li Frontend, Backend, DevOps, GameDev, Machine Learning...
         li Blogger (sometimes)
@@ -80,8 +81,9 @@
         li(v-if="step > 2") Use logic in different contexts
         li(v-if="step > 3") Heavy testing
         li(v-if="step > 4") Be readable!
-      img(v-if="step === 1" src="./assets/join_tournament_allowed.png")
-      img(v-if="step === 2" src="./assets/join_tournament_error.png")
+      .u-text-centered
+        img.presentation-image(v-if="step === 1" src="./assets/join_tournament_allowed.png")
+        img.presentation-image(v-if="step === 2" src="./assets/join_tournament_error.png")
 
     slide(enter="fadeIn", leave="fadeOut", steps="3")
       h2 Django - MVT framework
@@ -283,15 +285,15 @@
       highlight-code.eg-code-block.code-box(v-if="step === 4", lang="python").
         # Usage
         def invite_user_view(request):
-            # simplified, also can be done using forms or serializers in API
-            inviting_member = TeamMember.objects.get(user_id=request.user.pk)
+            # simplified, can be done using forms or serializers in API
+            member = TeamMember.objects.get(user_id=request.user.pk)
             user = User.objects.get(pk=request.POST.get('user_pk'))
             try:
-                if can_invite_user_to_team(user, inviting_member):
-                    member = invite_user_to_team(user, inviting_member)
+                if can_invite_user_to_team(user, member):
+                    member = invite_user_to_team(user, member)
                     return HttpResponseRedirect('/team/')
             except BusinessLogicException as e:
-                # template can use error message or error code to render conditionally
+                # template can use error message or error code
                 return HttpResponse(template, context={'error': e})
 
     slide(enter="fadeIn", leave="fadeOut", steps="3")
@@ -322,37 +324,46 @@
         invite_user_to_team(user, inviting_member, validate=False)
       highlight-code.eg-code-block.code-box(v-if="step === 3", lang="python").
         # check if action can be performed
-        result = can_invite_user_to_team(user, inviting_member, raise_exception=False)
-        assert not result          # or result.success
-        assert result.error_code   # NOT_LEADER
-        assert result.error        # LogicException(..., error_code='NOT_LEADER')
-      highlight-code.eg-code-block.code-box(v-if="step === 4", lang="python").
-        # Error registry
-        from business_logic import LogicErrors
+        result = can_invite_user_to_team(
+            user, inviting_member,
+            raise_exception=False)
 
-        class TeamLogicErrors(LogicErrors):
-            # automatic error codes
-            NOT_LEADER = LogicException("You are not a team leader!")
-            NEED_GAME = LogicException("User doesn't have this game!")
+        if result:
+            print("Sure, you can invite him!")
+        else:
+            assert result.error_code == 'NOT_LEADER'
+            # original exception raised, with all details
+            assert result.error
+      div(v-if="step === 4")
+        p Errors registry
+        highlight-code.eg-code-block.code-box( lang="python").
+          from business_logic import LogicErrors
 
-      p(v-if="step === 4") Usage
-      highlight-code.eg-code-block.code-box(v-if="step === 4", lang="python").
-        @validator
-        def can_invite_user_to_team(user, inviting_member):
-          if inviting_member.role != LEADER:
-              raise TeamLogicErrors.NOT_LEADER
-      highlight-code.eg-code-block.code-box(v-if="step === 5", lang="python").
-        # Validators chaining
-        @validator
-        def can_take_part_in_tournament(user, tournament):
-            if tournament.members.filter(user_pk=user.pk).exists()
-                raise TournamentErrors.ALREADY_IN_TOURNAMENT
+          class TeamLogicErrors(LogicErrors):
+              # automatic error codes
+              NOT_LEADER = LogicException("You are not a team leader!")
+              NEED_GAME = LogicException("User doesn't have this game!")
+
+        p Usage
+        highlight-code.eg-code-block.code-box(lang="python").
+          @validator
+          def can_invite_user_to_team(user, inviting_member):
+            if inviting_member.role != LEADER:
+                raise TeamLogicErrors.NOT_LEADER
+      div(v-if="step === 5")
+        p Validators chaining
+        highlight-code.eg-code-block.code-box(lang="python").
+          @validator
+          def can_take_part_in_tournament(user, tournament):
+              if tournament.members.filter(user_pk=user.pk).exists()
+                  raise TournamentErrors.ALREADY_IN_TOURNAMENT
 
 
-        @validator
-        def can_invite_user_to_team(user, inviting_member):
-            ...
-            can_take_part_in_tournament(user, inviting_member.team.tournament)
+          @validator
+          def can_invite_user_to_team(user, inviting_member):
+              ...
+              tournament = inviting_member.team.tournament
+              can_take_part_in_tournament(user, tournament)
       highlight-code.eg-code-block.code-box(v-if="step === 6", lang="python").
         # Customized error messages
         class TeamLogicErrors(LogicErrors):
@@ -360,39 +371,75 @@
 
         raise TeamLogicErrors.NEED_GAME.format(user='John')
 
-    slide(enter="fadeIn", leave="fadeOut", steps="3")
+    slide(enter="fadeIn", leave="fadeOut", steps="2")
       h2 Want better? #[strong Middleware]!
       h4(v-if="step === 1") It allows you to handle exceptions transparently, and code only happy path
       highlight-code.eg-code-block.code-box(v-if="step === 2", lang="python").
         def handle_api_exception(exception, context):
             if isinstance(exception, LogicException):
-                exception = exceptions.ParseError(_(f"Invalid operation: {exception}"))
+                # ParseError from Django Rest Framework
+                exception = ParseError(f"Invalid operation: {exception}")
             return default_exception_handler(exception, context)
+
+    slide(enter="fadeIn", leave="fadeOut", steps="4")
+      h2 Full example from pvpc.eu
+      highlight-code.eg-code-block.code-box(v-if="step === 1", lang="python").
+        @validator
+        def can_invite_user_to_team(by_member, user=None):
+            if not by_member.privileged:
+                raise TournamentErrorCodes.NOT_TEAM_CREATOR
+            if by_member.team.full:
+                raise TournamentErrorCodes.TEAM_FULL
+            if by_member.team.type == TournamentTeam.FREE_AGENT:
+                raise TournamentErrorCodes.CANT_INVITE_TO_FREE_AGENT_TEAM
+            if user:
+                can_join_tournament_team(user, by_member.team)
+            can_modify_team_members(by_member.team)
+
+      highlight-code.eg-code-block.code-box(v-if="step === 2", lang="python").
+        @validated_by(can_invite_user_to_team)
+        def invite_user_to_team(by_member, user):
+          notification_code = 'tournament.team.invitation.received'
+          notify(notification_code, user, by_member.team, by_member.user)
+          logger.info("User has been invited to the tournament team")
+          return TournamentTeamMember.objects.create(
+              user=user, team=by_member.team)
+
       highlight-code.eg-code-block.code-box(v-if="step === 3", lang="python").
-        class TournamentTeamMemberCreateSerializer(serializers.ModelSerializer):
+        class TournamentTeamMemberSerializer(serializers.ModelSerializer):
             class Meta:
                 model = models.TournamentTeamMember
                 fields = ('pk', 'user', 'team')
 
             def create(self, validated_data):
-                team = validated_data['team']
-                user = validated_data['user']
-                request = self.context['request']
+                current_user = self.context['request'].user
                 by_member = (
-                  models.TournamentTeamMember.objects
-                  .filter(user=request.user, team=team)
-                  .first())
+                    models.TournamentTeamMember.objects
+                    .filter(user=current_user, team=validated_data['team'])
+                    .first())
                 if not by_member:
-                  raise NotPermittedException("Must be a team member!")
-                return services.invite_user_to_team(by_member, user=user)
+                    raise NotPermittedException("Must be a team member!")
+                return services.invite_user_to_team(
+                    by_member, user=validated_data['user'])
+
+      highlight-code.eg-code-block.code-box(v-if="step === 4", lang="python").
+        def test_cannot_invite_user_to_team_if_free_agent(self):
+            user = UserFactory()
+            member = TournamentTeamCreatorFactory(
+                team__type=TournamentTeam.FREE_AGENT)
+            expected = TournamentErrorCodes.CANT_INVITE_TO_FREE_AGENT_TEAM
+            with self.shouldRaiseException(expected):
+                services.can_invite_user_to_team(member, user)
+
 
     slide(enter="fadeIn", leave="fadeOut")
-      h2 Thank you for attention!
+      h2 Questions?
       div.u-text-centered
         h4 <a href='https://github.com/Valian/python-business-logic'>github.com/Valian/python-business-logic</a>
         h4 Twitter @jskalc
+        h4 LinkedIn <a href="https://www.linkedin.com/in/jskalec/">Jakub Skałecki</a>
         h4 Blog <a href="https://rock-it.pl">rock-it.pl</a>
-        h4 PS. #[strong We're hiring!] <a href="https://videobeat.net">videobeat.net</a>
+        h4 #[strong PS. We're hiring!] <a href="https://videobeat.net">videobeat.net</a>
 
 
 </template>
@@ -418,12 +465,39 @@ export default {
 <style lang='scss'>
   @import url(https://fonts.googleapis.com/css?family=Oxygen);
   #business-logic {
-    h1, h2, h3, h4, div, blockquote, p, ul, li {
-      //background-image: url("~eagle.js/dist/themes/assets/crossword.png");
-      font-family: "Oxygen", sans-serif;
-      color: #0C3C26;
+    //background-image: url("~eagle.js/dist/themes/assets/crossword.png");
+
+    &.eg-slideshow::after {
+      content: "@jskalc";
+      padding-right: 45px;
+      padding-top: 3px;
+      position: absolute;
+      font-size: 0.8em;
+      right: 20px;
+      bottom: 20px;
+      background: url(https://logos-download.com/wp-content/uploads/2016/02/Twitter_logo_bird_transparent_png.png) no-repeat right;
+      background-size: contain;
     }
-    h1 { font-size: 3.2em; }
+
+    &.eg-slideshow::before {
+      content: "Valian";
+      position: absolute;
+      padding-left: 45px;
+      padding-top: 5px;
+      font-size: 0.8em;
+      left: 20px;
+      bottom: 20px;
+      color: #0e3d54;
+      background: url(https://image.flaticon.com/icons/svg/25/25231.svg) no-repeat;
+      background-size: contain;
+    }
+
+    h1, h2, h3, h4, div, blockquote, p, ul, li {
+      font-family: "Oxygen", sans-serif;
+      color: #0e553d;
+    }
+
+    h1 { font-size: 3.2em; color: #0C3C26; }
     h2 { font-size: 2.1em; }
     h3 { font-size: 1.5em; }
     h4 { font-size: 1.2em; }
