@@ -452,12 +452,6 @@ export default {
     return {
       shortVersion: true
     }
-  },
-  infos: {
-    // These infos appear on the home page, below the slideshow's thumbnail
-    title: 'Your First Slideshow',
-    description: 'A boilerplate to get you started',
-    path: 'your-first-slideshow'
   }
 }
 </script>
