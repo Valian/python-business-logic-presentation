@@ -1,12 +1,13 @@
 <template lang='pug'>
 .eg-theme-agrume
-  .eg-slideshow
-    slide(enter="fadeIn", leave="fadeOut", steps="2")
-      h1 Business Logic
-      h1(v-if="step > 1").
-        in Django
+  #business-logic.eg-slideshow
+    slide(enter="fadeIn", leave="fadeOut")
+      h1 Business Logic in
+      .u-text-centered
+        img(src="./assets/django-logo.png")
+      h2 Jakub Skałecki @jskalc
 
-    slide
+    slide(enter="fadeIn", leave="fadeOut")
       h2 About me
       ul
         li Currently Technical Team leader at VideoBeat
@@ -20,7 +21,7 @@
       h3(v-if="step === 2") Your definitions?
       h3(v-if="step > 2") My definition
       eg-transition(enter='bounceInLeft', leave='fadeOut', v-if="step > 2")
-        p It's a set of domain-related rules how data in our application can be manipulated, based on real-world requirements.
+        blockquote It's a set of domain-related rules how data in our application can be manipulated, based on real-world requirements.
 
     slide(enter="fadeIn", leave="fadeOut", steps="3")
       h2 Business logic
@@ -44,16 +45,17 @@
           eg-transition(enter='bounceInDown', key="commands")
             p We'll be focusing on this aspect during this presentation
 
-    slide(:steps="shortVersion ? 1 : 3")
+    slide(:steps="shortVersion ? 2 : 4")
       h2 Example from my startup
-      div(v-if="step === 1")
-        h4 Forming a team
-        ul
-          li As a tournament team leader,
-          li I can invite other players to my team
-          li Only if they have added required game to their accounts
-          li And team is not full
-      div(v-if="step == 2 && !shortVersion")
+      eg-transition(enter='slideInLeft', leave='slideOutTop', v-if="step === 2", key="example1")
+        div
+          h4 Forming a team
+          ul
+            li As a tournament team leader,
+            li I can invite other players to my team
+            li Only if they have added required game to their accounts
+            li And team is not full
+      div(v-if="step === 3 && !shortVersion")
         h4 Finishing match
         ul
           li After receiving tournament match results as a webhook,
@@ -62,7 +64,7 @@
           li Losing team should be removed from the tournament,
           li They should be notified of what happened,
           li And next match should start if both teams are ready
-      div(v-if="step == 3 && !shortVersion")
+      div(v-if="step === 4 && !shortVersion")
         h4 Finishing match (conflict case)
         ul
           li After receiving tournament match results from one of participating teams,
@@ -99,7 +101,9 @@
                 messages.success(message)
                 return HttpResponseRedirect('/team/')
             else:
-                return HttpResponse('template.html', context={'form': form})
+                return HttpResponse(
+                    'template.html',
+                    context={'form': form})
 
       template(v-if="step === 4")
         h4 Pros
@@ -145,9 +149,11 @@
 
             def add_member(user, inviting_member):
                 if inviting_member.role != LEADER:
-                    raise TeamInvitationException("You have to be a leader!")
+                    raise TeamInvitationException(
+                        "You have to be a leader!")
                 if not user.has_game(self.game):
-                    raise TeamInvitationException("User don't have this game!")
+                    raise TeamInvitationException(
+                        "User don't have this game!")
                 member = TeamMember(user=user, team=self)
                 member.save()
                 notifications.send(user, "You are invited to the team")
@@ -157,7 +163,7 @@
     slide(enter="fadeIn", leave="fadeOut", steps="4")
       h2 Model + View + #[strong Template]
       h4(v-if="step >= 2 && step <= 3") The final solution I wanted to show you
-      highlight-code.eg-code-block.code-box(v-if="step === 3", lang="python").
+      highlight-code.eg-code-block.code-box(v-if="step === 3").
         {% has_game user team.game as user_has_game %}
         {% is_leader team inviting_member as is_leader %}
         {% if not user_has_game %}
@@ -380,7 +386,7 @@
                   raise NotPermittedException("Must be a team member!")
                 return services.invite_user_to_team(by_member, user=user)
 
-    slide
+    slide(enter="fadeIn", leave="fadeOut")
       h2 Thank you for attention!
       div.u-text-centered
         h4 <a href='https://github.com/Valian/python-business-logic'>github.com/Valian/python-business-logic</a>
@@ -410,7 +416,28 @@ export default {
 </script>
 
 <style lang='scss'>
-.u-text-centered {
-  text-align: center;
-}
+  @import url(https://fonts.googleapis.com/css?family=Oxygen);
+  #business-logic {
+    h1, h2, h3, h4, div, blockquote, p, ul, li {
+      //background-image: url("~eagle.js/dist/themes/assets/crossword.png");
+      font-family: "Oxygen", sans-serif;
+      color: #0C3C26;
+    }
+    h1 { font-size: 3.2em; }
+    h2 { font-size: 2.1em; }
+    h3 { font-size: 1.5em; }
+    h4 { font-size: 1.2em; }
+    blockquote {
+      font-style: italic;
+    }
+    ul li {
+      margin-bottom: 0.3em;
+    }
+    .eg-code-block {
+      font-size: 0.6em;
+    }
+  }
+  .u-text-centered {
+    text-align: center;
+  }
 </style>
