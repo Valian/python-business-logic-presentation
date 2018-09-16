@@ -1,17 +1,12 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
-import slideshows from './slideshows/slideshows'
-import Home from './Home'
+import Slideshow from './Slideshow'
 
 Vue.use(Router)
 
 const routes = [
-  ...slideshows.list.map(slideshow => ({
-    path: '/' + slideshow.infos.path,
-    component: slideshow
-  })),
-  { path: '*', component: Home }
+  { path: '*', component: Slideshow }
 ]
 
 export default new Router({

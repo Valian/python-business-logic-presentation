@@ -1,7 +1,7 @@
 <template lang='pug'>
 .eg-theme-agrume
   .eg-slideshow
-    slide(steps="2")
+    slide(enter="fadeIn", leave="fadeOut", steps="2")
       h1 Business Logic
       h1(v-if="step > 1").
         in Django
@@ -15,14 +15,14 @@
         li Blogger (sometimes)
         li Polyglot programmer, technology enthusiast
 
-    slide(steps="3")
+    slide(enter="fadeIn", leave="fadeOut", steps="3")
       h2 Business logic
       h3(v-if="step === 2") Your definitions?
       h3(v-if="step > 2") My definition
-      p(v-if="step > 2").
-        It's a set of domain-related rules how data in our application can be manipulated, based on real-world requirements.
+      eg-transition(enter='bounceInLeft', leave='fadeOut', v-if="step > 2")
+        p It's a set of domain-related rules how data in our application can be manipulated, based on real-world requirements.
 
-    slide(steps="3")
+    slide(enter="fadeIn", leave="fadeOut", steps="3")
       h2 Business logic
       .u-text-centered
         h4(v-if="step === 1") Queries + Commands
@@ -30,17 +30,19 @@
           h4
             strong Queries
             |  + Commands
-          p
-            | In Django, the best place is a good combination of
-            strong  Manager
-            |  and
-            strong  QuerySet
-            |  methods
+          eg-transition(enter='bounceInDown', key="queries")
+            p
+              | In Django, the best place is a good combination of
+              strong  Manager
+              |  and
+              strong  QuerySet
+              |  methods
         div(v-if="step === 3")
           h4
             | Queries +
             strong  Commands
-          p We'll be focusing on this aspect during this presentation
+          eg-transition(enter='bounceInDown', key="commands")
+            p We'll be focusing on this aspect during this presentation
 
     slide(:steps="shortVersion ? 1 : 3")
       h2 Example from my startup
@@ -68,7 +70,7 @@
           li Match should be marked as in conflict,
           li and moderator should be notified
 
-    slide(steps=5)
+    slide(enter="fadeIn", leave="fadeOut", steps=5)
       h2 Common requirements
       ul
         li Validate if action can be performed
@@ -79,12 +81,12 @@
       img(v-if="step === 1" src="./assets/join_tournament_allowed.png")
       img(v-if="step === 2" src="./assets/join_tournament_error.png")
 
-    slide(steps="3")
+    slide(enter="fadeIn", leave="fadeOut", steps="3")
       h2 Django - MVT framework
       h3(v-if="step >= 2") #[strong Model] + #[strong View] + #[strong Template]
       h3(v-if="step >= 3") Where to put business logic?
 
-    slide(steps="5")
+    slide(enter="fadeIn", leave="fadeOut", steps="5")
       h2 Model + #[strong View] + Template
       h4(v-if="step === 2") Typical choice for new Django users
       highlight-code.eg-code-block.code-box(v-if="step === 3", lang="python").
@@ -112,7 +114,7 @@
           li Hard to reuse (multiple similar views? management commands?)
           li Hard and slow to test (full request - response cycle)
 
-    slide(steps="6")
+    slide(enter="fadeIn", leave="fadeOut", steps="6")
       h2 #[strong Model] + View + Template
       h4(v-if="step === 2") Typical second choice
       highlight-code.eg-code-block.code-box(v-if="step === 3", lang="python").
@@ -152,7 +154,7 @@
                 invitation_create_signal.send_robust(member)
                 return member
 
-    slide(steps="4")
+    slide(enter="fadeIn", leave="fadeOut", steps="4")
       h2 Model + View + #[strong Template]
       h4(v-if="step >= 2 && step <= 3") The final solution I wanted to show you
       highlight-code.eg-code-block.code-box(v-if="step === 3", lang="python").
@@ -168,14 +170,14 @@
       .u-text-centered
         img(v-if="step === 4", src="./assets/rickrolled.gif")
 
-    slide(steps="4")
+    slide(enter="fadeIn", leave="fadeOut", steps="4")
       h2 My solution
       .u-text-centered
         img(v-if="step === 2" src="./assets/django_raw.svg")
         img(v-if="step === 3" src="./assets/django_clean.svg")
         img(v-if="step === 4" src="./assets/django_services.svg")
 
-    slide(steps="4")
+    slide(enter="fadeIn", leave="fadeOut", steps="4")
       h2 Services.py
       highlight-code.eg-code-block.code-box(v-if="step === 1", lang="python").
         def invite_user_to_team(user, inviting_member):
@@ -210,7 +212,7 @@
           li Async tasks
           li API methods
 
-    slide(steps="2")
+    slide(enter="fadeIn", leave="fadeOut", steps="2")
       div(v-if="step === 1")
         h2 It can solve
         ul
@@ -233,7 +235,7 @@
           li Heavy testing
           li Be readable!
       
-    slide(steps="4")
+    slide(enter="fadeIn", leave="fadeOut", steps="4")
       h2 Validate an action
       highlight-code.eg-code-block.code-box(v-if="step === 1", lang="python").
         def invite_user_to_team(user, inviting_member):
@@ -286,12 +288,12 @@
                 # template can use error message or error code to render conditionally
                 return HttpResponse(template, context={'error': e})
 
-    slide(steps="3")
+    slide(enter="fadeIn", leave="fadeOut", steps="3")
       h2 Can we do better?
       h3(v-if="step === 2") Sure!
       h4(v-if="step === 3") Let's look into my #[strong python-business-logic] package
 
-    slide(steps="6")
+    slide(enter="fadeIn", leave="fadeOut", steps="6")
       h2 python-business-logic
       highlight-code.eg-code-block.code-box(v-if="step === 1", lang="python").
         from business_logic import validator, validated_by, LogicException
@@ -352,7 +354,7 @@
 
         raise TeamLogicErrors.NEED_GAME.format(user='John')
 
-    slide(steps="3")
+    slide(enter="fadeIn", leave="fadeOut", steps="3")
       h2 Want better? #[strong Middleware]!
       h4(v-if="step === 1") It allows you to handle exceptions transparently, and code only happy path
       highlight-code.eg-code-block.code-box(v-if="step === 2", lang="python").

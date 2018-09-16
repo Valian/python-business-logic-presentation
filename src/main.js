@@ -4,6 +4,7 @@ import Vue from 'vue'
 import App from './App'
 
 import Eagle from 'eagle.js'
+import 'animate.css'
 import 'eagle.js/dist/eagle.css'
 import 'eagle.js/dist/themes/gourmet/gourmet.css'
 import 'eagle.js/dist/themes/agrume/agrume.css'
