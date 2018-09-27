@@ -6,7 +6,7 @@
       .u-text-centered
         img(src="./assets/django-logo.png")
       h2 Jakub Skałecki @jskalc
-      h4.u-text-centered PyWaw, 17.09.2018
+      h4.u-text-centered PyKonik, 27.09.2018
 
     slide(enter="fadeIn", leave="fadeOut")
       h2 About me
@@ -439,7 +439,6 @@
         h4 Twitter @jskalc
         h4 LinkedIn <a href="https://www.linkedin.com/in/jskalec/">Jakub Skałecki</a>
         h4 Blog <a href="https://rock-it.pl">rock-it.pl</a>
-        h4 #[strong PS. We're hiring!] <a href="https://videobeat.net">videobeat.net</a>
 
 
 </template>
